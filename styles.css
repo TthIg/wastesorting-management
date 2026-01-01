@@ -1,0 +1,784 @@
+/**
+ * ============================================================================
+ * RECYCLE CAM - STYLES
+ * ============================================================================
+ * 
+ * A modern, eco-themed dark UI for the AI-powered recycling assistant.
+ * 
+ * Design System:
+ * - Primary Background: Deep forest green (#0a0f0d)
+ * - Accent Color: Vibrant green (#4ade80)
+ * - Secondary Accent: Cyan (#22d3ee)
+ * - Typography: Outfit font family
+ * 
+ * Author: [Your Name]
+ * Project: Recycle Cam - AI Waste Sorting Assistant
+ * ============================================================================
+ */
+
+/* ============================================================================
+   CSS CUSTOM PROPERTIES (VARIABLES)
+   ============================================================================
+   Using CSS variables for consistent theming and easy customization.
+   These can be modified to change the entire app's color scheme.
+*/
+:root {
+  /* Background Colors */
+  --bg-primary: #0a0f0d;
+  --bg-secondary: #121a16;
+  --bg-card: rgba(26, 38, 32, 0.7);
+
+  /* Border Colors */
+  --border-color: rgba(74, 222, 128, 0.15);
+
+  /* Text Colors */
+  --text-primary: #f0fdf4;
+  --text-secondary: #86efac;
+  --text-muted: rgba(134, 239, 172, 0.6);
+
+  /* Accent Colors */
+  --accent: #4ade80;
+  --accent-glow: rgba(74, 222, 128, 0.4);
+
+  /* Gradients */
+  --gradient-1: linear-gradient(135deg, #4ade80 0%, #22d3ee 100%);
+
+  /* Status Colors */
+  --warning: #fbbf24;
+  --success: #4ade80;
+}
+
+/* ============================================================================
+   CSS RESET & BASE STYLES
+   ============================================================================
+   Normalizing default browser styles for consistent cross-browser rendering.
+*/
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden; /* Prevents scrolling - app fills entire viewport */
+}
+
+body {
+  font-family: "Outfit", system-ui, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* ============================================================================
+   ANIMATED BACKGROUND
+   ============================================================================
+   Creates a subtle, ambient glow effect using layered radial gradients.
+   The ::before pseudo-element is positioned behind all content.
+*/
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0; /* Shorthand for top: 0; right: 0; bottom: 0; left: 0; */
+  background: radial-gradient(
+      ellipse 80% 50% at 50% -20%,
+      rgba(74, 222, 128, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 100% 100%,
+      rgba(34, 211, 238, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 40% 30% at 0% 80%,
+      rgba(74, 222, 128, 0.08) 0%,
+      transparent 50%
+    );
+  pointer-events: none; /* Allows clicks to pass through */
+  z-index: 0;
+}
+
+/* ============================================================================
+   MAIN APP CONTAINER
+   ============================================================================
+   Flexbox layout that fills the viewport height and centers content.
+*/
+.app {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  /* Safe area inset for devices with notches (iPhone X and later) */
+  padding-bottom: env(safe-area-inset-bottom, 12px);
+}
+
+/* ============================================================================
+   HEADER SECTION
+   ============================================================================
+   Contains the app logo and title with entrance animation.
+*/
+header {
+  text-align: center;
+  padding: 8px 0 12px;
+  flex-shrink: 0; /* Prevents header from shrinking */
+  animation: fadeInDown 0.6s ease-out;
+}
+
+/* Entrance animation - slides down and fades in */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Logo container - horizontal layout */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Logo icon with gradient background */
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--gradient-1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 6px 24px var(--accent-glow);
+}
+
+/* App title with gradient text effect */
+h1 {
+  font-size: 24px;
+  font-weight: 800;
+  background: var(--gradient-1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+
+/* ============================================================================
+   CAMERA VIEWPORT
+   ============================================================================
+   The main container for the camera feed and all overlays.
+   Uses flexbox to fill remaining vertical space.
+*/
+.viewport-wrapper {
+  flex: 1;
+  min-height: 0; /* Important for flexbox to allow shrinking */
+  display: flex;
+  flex-direction: column;
+  animation: fadeInUp 0.6s ease-out 0.1s both;
+}
+
+/* Entrance animation - slides up and fades in */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Camera viewport container */
+.viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: var(--bg-secondary);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  /* Multi-layer box shadow for depth effect */
+  box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.05),
+    0 20px 60px -12px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Gradient border effect using pseudo-element */
+.viewport::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  padding: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(74, 222, 128, 0.2) 0%,
+    transparent 30%
+  );
+  /* Mask technique to create border gradient */
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Video and canvas elements fill the viewport */
+video,
+canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Maintains aspect ratio while filling container */
+}
+
+/* ============================================================================
+   TARGET ZONE OVERLAY
+   ============================================================================
+   Visual guide showing users where to position objects for best detection.
+*/
+.target-zone {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Show target zone when active */
+.target-zone.visible {
+  opacity: 1;
+}
+
+/* Hide target zone when object is detected */
+.target-zone.detected {
+  opacity: 0;
+}
+
+/* Circular target area with pulsing animation */
+.target-circle {
+  width: 65%;
+  aspect-ratio: 1;
+  max-width: 280px;
+  max-height: 280px;
+  border: 2px dashed rgba(74, 222, 128, 0.4);
+  border-radius: 50%;
+  position: relative;
+  animation: pulse-target 2s ease-in-out infinite;
+}
+
+/* Pulsing animation for target zone */
+@keyframes pulse-target {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
+
+/* Outer ring around target circle */
+.target-circle::before {
+  content: "";
+  position: absolute;
+  inset: -20px;
+  border: 1px solid rgba(74, 222, 128, 0.15);
+  border-radius: 50%;
+}
+
+/* Crosshair in center of target */
+.target-crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+}
+
+/* Horizontal line of crosshair */
+.target-crosshair::before {
+  content: "";
+  position: absolute;
+  background: rgba(74, 222, 128, 0.5);
+  width: 24px;
+  height: 2px;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+/* Vertical line of crosshair */
+.target-crosshair::after {
+  content: "";
+  position: absolute;
+  background: rgba(74, 222, 128, 0.5);
+  width: 2px;
+  height: 24px;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+}
+
+/* ============================================================================
+   TIPS BANNER
+   ============================================================================
+   Dynamic tip display at top of screen that changes based on detection state.
+*/
+.tips-banner {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px); /* Frosted glass effect */
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+}
+
+/* Show tips banner */
+.tips-banner.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Success state styling */
+.tips-banner.success {
+  border-color: rgba(74, 222, 128, 0.3);
+  background: rgba(74, 222, 128, 0.15);
+}
+
+.tip-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.tip-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+/* ============================================================================
+   CONFIDENCE METER
+   ============================================================================
+   Visual indicator showing AI detection confidence level.
+*/
+.confidence-meter {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.confidence-meter.visible {
+  opacity: 1;
+}
+
+.confidence-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+/* Progress bar container */
+.confidence-bar {
+  width: 60px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+/* Progress bar fill - width controlled by JavaScript */
+.confidence-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+/* Color states for confidence levels */
+.confidence-fill.low {
+  background: #ef4444; /* Red - low confidence */
+}
+
+.confidence-fill.medium {
+  background: #fbbf24; /* Yellow - medium confidence */
+}
+
+.confidence-fill.high {
+  background: #4ade80; /* Green - high confidence */
+}
+
+.confidence-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ============================================================================
+   START OVERLAY
+   ============================================================================
+   Initial screen shown before camera starts, with helpful tips.
+*/
+.start-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 15, 13, 0.95);
+  z-index: 15;
+  transition: all 0.4s ease;
+}
+
+/* Hidden state for smooth fade out */
+.start-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Tips section on start screen */
+.start-tips {
+  max-width: 280px;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.start-tips h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.start-tips-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Individual tip items */
+.start-tip-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(74, 222, 128, 0.08);
+  border-radius: 10px;
+  border: 1px solid rgba(74, 222, 128, 0.15);
+}
+
+.start-tip-icon {
+  font-size: 18px;
+}
+
+.start-tip-text {
+  font-size: 13px;
+  color: var(--text-primary);
+  text-align: left;
+}
+
+/* Start button with gradient and hover effects */
+.start-btn {
+  font-family: "Outfit", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  padding: 18px 48px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  background: var(--gradient-1);
+  color: #052e16;
+  box-shadow: 0 8px 32px var(--accent-glow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glossy highlight effect on button */
+.start-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+}
+
+/* Hover state - lifts button up */
+.start-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 40px var(--accent-glow);
+}
+
+/* Active/pressed state */
+.start-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ============================================================================
+   LOADING OVERLAY
+   ============================================================================
+   Displayed while AI model is loading.
+*/
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 15, 13, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.loading-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Spinning loader animation */
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 14px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ============================================================================
+   HUD (HEADS-UP DISPLAY) PANEL
+   ============================================================================
+   Bottom overlay showing detected category and object information.
+*/
+.hud {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 12;
+  padding: 16px;
+  /* Gradient fade from transparent to solid */
+  background: linear-gradient(
+    to top,
+    rgba(10, 15, 13, 0.95) 0%,
+    rgba(10, 15, 13, 0.8) 70%,
+    transparent 100%
+  );
+}
+
+/* Main HUD card with glassmorphism effect */
+.hud-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 16px;
+  backdrop-filter: blur(20px);
+  transition: border-color 0.3s ease;
+}
+
+/* Category display - horizontal layout */
+.category-display {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Category icon container */
+.category-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+/* Category-specific colors */
+.category-icon.compost {
+  background: linear-gradient(135deg, #854d0e, #a16207);
+}
+
+.category-icon.paper {
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+}
+
+.category-icon.metal {
+  background: linear-gradient(135deg, #374151, #6b7280);
+}
+
+.category-icon.glass {
+  background: linear-gradient(135deg, #0e7490, #22d3ee);
+}
+
+.category-icon.plastic {
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+}
+
+.category-icon.unknown {
+  background: linear-gradient(135deg, #3f3f46, #52525b);
+}
+
+/* Category text container */
+.category-text {
+  flex: 1;
+  min-width: 0; /* Allows text truncation */
+}
+
+.category-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+
+.category-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Detection status badge */
+.detection-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+/* Pulsing detection indicator dot */
+.detection-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Inactive state - no animation, gray color */
+.detection-dot.inactive {
+  background: #6b7280;
+  animation: none;
+}
+
+.detection-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ============================================================================
+   CATEGORY-SPECIFIC CARD THEMES
+   ============================================================================
+   Changes the HUD card border color based on detected category.
+*/
+.hud-card[data-category="compost"] {
+  border-color: rgba(161, 98, 7, 0.4);
+}
+
+.hud-card[data-category="paper"] {
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.hud-card[data-category="metal"] {
+  border-color: rgba(107, 114, 128, 0.4);
+}
+
+.hud-card[data-category="glass"] {
+  border-color: rgba(34, 211, 238, 0.4);
+}
+
+.hud-card[data-category="plastic"] {
+  border-color: rgba(167, 139, 250, 0.4);
+}
