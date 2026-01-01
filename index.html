@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!--
+    ============================================================================
+    RECYCLE CAM - AI-POWERED WASTE SORTING ASSISTANT
+    ============================================================================
+    
+    This application uses machine learning to identify objects through
+    the device camera and suggests the appropriate recycling category.
+    
+    Technologies Used:
+    - HTML5 Canvas API for drawing detection overlays
+    - CSS3 with custom properties for theming
+    - JavaScript ES6+ with async/await
+    - TensorFlow.js for running ML models in the browser
+    - COCO-SSD model for object detection
+    
+    Browser Support:
+    - Chrome 60+
+    - Firefox 55+
+    - Safari 11+
+    - Edge 79+
+    
+    Author: [Your Name]
+    Project: School Project - Environmental Science / Computer Science
+    Date: 2024
+    ============================================================================
+    -->
+
+    <!-- Character encoding for proper text display -->
+    <meta charset="utf-8" />
+
+    <!-- Viewport settings for responsive design on mobile devices -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+
+    <!-- Page title shown in browser tab -->
+    <title>Recycle Cam — AI Waste Sorting Assistant</title>
+
+    <!-- SEO and accessibility meta tags -->
+    <meta
+      name="description"
+      content="AI-powered recycling assistant that identifies objects and suggests the correct recycling bin."
+    />
+    <meta name="theme-color" content="#0a0f0d" />
+
+    <!-- 
+    Google Fonts - Outfit 
+    A modern, geometric sans-serif font perfect for UI design.
+    We preconnect to reduce loading time.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Main stylesheet - contains all CSS styles -->
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <!--
+    ============================================================================
+    APPLICATION CONTAINER
+    ============================================================================
+    The main app wrapper uses flexbox to create a full-height layout
+    that adapts to any screen size.
+    -->
+    <div class="app">
+      <!--
+      ========================================================================
+      HEADER SECTION
+      ========================================================================
+      Contains the app logo and title. Uses entrance animation on load.
+      -->
+      <header>
+        <div class="logo">
+          <!-- Logo icon with recycling emoji -->
+          <div class="logo-icon">♻️</div>
+          <!-- App title with gradient text effect -->
+          <h1>Recycle Cam</h1>
+        </div>
+      </header>
+
+      <!--
+      ========================================================================
+      CAMERA VIEWPORT
+      ========================================================================
+      This section contains all the camera-related elements:
+      - Live video feed from device camera
+      - Canvas overlay for drawing detection graphics
+      - Target zone guide for positioning objects
+      - Tips banner for user guidance
+      - Confidence meter showing detection quality
+      - Start overlay with instructions
+      - Loading overlay while AI model loads
+      - HUD (Heads-Up Display) showing results
+      -->
+      <div class="viewport-wrapper">
+        <div class="viewport">
+          <!--
+          VIDEO ELEMENT
+          Displays the live camera feed.
+          Attributes:
+          - playsinline: Prevents fullscreen on iOS
+          - autoplay: Starts playing when stream is attached
+          - muted: Required for autoplay to work
+          -->
+          <video id="video" playsinline autoplay muted></video>
+
+          <!--
+          CANVAS OVERLAY
+          Used for drawing detection circles and labels.
+          Positioned absolutely on top of the video.
+          -->
+          <canvas id="overlay"></canvas>
+
+          <!--
+          TARGET ZONE GUIDE
+          Shows a dashed circle indicating where to position objects
+          for optimal detection. Fades out when an object is detected.
+          -->
+          <div class="target-zone" id="targetZone">
+            <div class="target-circle">
+              <div class="target-crosshair"></div>
+            </div>
+          </div>
+
+          <!--
+          TIPS BANNER
+          Displays contextual tips based on detection state:
+          - "Place an object in the center" when nothing detected
+          - "Move closer to the object" when object is too small
+          - "Try better lighting" when confidence is low
+          - "Object detected!" on successful detection
+          -->
+          <div class="tips-banner" id="tipsBanner">
+            <span class="tip-icon" id="tipIcon">💡</span>
+            <span class="tip-text" id="tipText">Place object in center</span>
+          </div>
+
+          <!--
+          CONFIDENCE METER
+          Visual indicator showing AI detection confidence.
+          The bar fills based on confidence percentage and
+          changes color (red → yellow → green).
+          -->
+          <div class="confidence-meter" id="confidenceMeter">
+            <div class="confidence-label">Confidence</div>
+            <div class="confidence-bar">
+              <div class="confidence-fill" id="confidenceFill"></div>
+            </div>
+            <div class="confidence-value" id="confidenceValue">0%</div>
+          </div>
+
+          <!--
+          START OVERLAY
+          Initial screen shown before camera starts.
+          Contains helpful tips for best detection results.
+          -->
+          <div class="start-overlay" id="startOverlay">
+            <!-- Tips for getting best results -->
+            <div class="start-tips">
+              <h3>For best results</h3>
+              <div class="start-tips-list">
+                <!-- Tip 1: Background -->
+                <div class="start-tip-item">
+                  <span class="start-tip-icon">🎯</span>
+                  <span class="start-tip-text">
+                    Use a plain background (white wall or paper)
+                  </span>
+                </div>
+                <!-- Tip 2: Lighting -->
+                <div class="start-tip-item">
+                  <span class="start-tip-icon">💡</span>
+                  <span class="start-tip-text">Good, even lighting</span>
+                </div>
+                <!-- Tip 3: Distance -->
+                <div class="start-tip-item">
+                  <span class="start-tip-icon">📏</span>
+                  <span class="start-tip-text">
+                    Hold object close to fill the frame
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Start button -->
+            <button class="start-btn" id="startBtn">▶ Start Camera</button>
+          </div>
+
+          <!--
+          LOADING OVERLAY
+          Displayed while TensorFlow.js model is loading.
+          Shows a spinning animation and loading message.
+          -->
+          <div class="loading-overlay" id="loadingOverlay">
+            <div class="loader"></div>
+            <div class="loading-text">Loading AI model...</div>
+          </div>
+
+          <!--
+          HEADS-UP DISPLAY (HUD)
+          Bottom panel showing:
+          - Category icon and name (where to dispose)
+          - Detection badge with object name
+          Initially hidden, shown after camera starts.
+          -->
+          <div class="hud" id="hud" style="display: none">
+            <div class="hud-card" id="hudCard">
+              <div class="category-display">
+                <!-- Category icon (changes based on detection) -->
+                <div class="category-icon unknown" id="categoryIcon">❓</div>
+
+                <!-- Category text -->
+                <div class="category-text">
+                  <div class="category-label">Dispose in</div>
+                  <div class="category-value" id="categoryValue">
+                    Scanning...
+                  </div>
+                </div>
+
+                <!-- Detection status badge -->
+                <div class="detection-badge">
+                  <div class="detection-dot inactive" id="detectionDot"></div>
+                  <div class="detection-text" id="detectionText">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--
+    ============================================================================
+    EXTERNAL SCRIPTS
+    ============================================================================
+    Loading TensorFlow.js and the COCO-SSD model from CDN.
+    These must be loaded before our application script.
+    -->
+
+    <!--
+    TensorFlow.js Core Library
+    This is the main machine learning library that runs in the browser.
+    It enables running neural networks using WebGL for GPU acceleration.
+    https://www.tensorflow.org/js
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+
+    <!--
+    COCO-SSD Object Detection Model
+    Pre-trained model that can detect 80 different object categories.
+    Trained on the COCO (Common Objects in Context) dataset.
+    Used for LOCATING objects in the frame (bounding boxes).
+    https://github.com/tensorflow/tfjs-models/tree/master/coco-ssd
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
+
+    <!--
+    MobileNet Image Classification Model
+    Pre-trained model that can classify images into 1000+ categories.
+    Trained on the ImageNet dataset with material-specific labels.
+    Used for IDENTIFYING what the detected object is made of.
+    https://github.com/tensorflow/tfjs-models/tree/master/mobilenet
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js"></script>
+
+    <!--
+    Material Mappings Data
+    Contains 300+ object-to-recycling-category mappings.
+    Separated into its own file for maintainability.
+    -->
+    <script src="mappings.js"></script>
+
+    <!--
+    Application JavaScript
+    Main application logic - must be loaded after all dependencies
+    -->
+    <script src="app.js"></script>
+  </body>
+</html>
